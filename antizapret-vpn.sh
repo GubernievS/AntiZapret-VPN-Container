@@ -1,7 +1,9 @@
 #
 # Скрипт для автоматического развертывания AntiZapret VPN Container
 # + Разблокирован YouTube и часть сайтов блокируемых без решения суда
-# Версия 1 от 01.08.2024
+# Для увеличения скорости YouTube используется шифрование BF-CBC и UDP порт
+#
+# Версия 2 от 02.08.2024
 # https://github.com/GubernievS/AntiZapret-VPN-Container
 #
 # Протестировано на Ubuntu 20.04   Процессор: 1 core   Память: 1 Gb   Хранилище: 10 Gb
@@ -11,7 +13,7 @@
 # 3. В консоли под root выполнить:
 # chmod +x ./antizapret-vpn.sh && ./antizapret-vpn.sh
 # 4. Указать вручную LXD snap track = 4.0
-# 5. Скопировать файл antizapret-client-tcp.ovpn с сервера из папки root
+# 5. Скопировать файл antizapret-client-udp.ovpn с сервера из папки root
 #
 # Полезные ссылки
 # https://ntc.party/t/контейнер-vpn-антизапрета-для-установки-на-собственный-сервер/129
@@ -37,16 +39,27 @@ sudo lxd init --auto
 sudo lxc image import https://antizapret.prostovpn.org/container-images/az-vpn --alias antizapret-vpn-img
 sudo lxc init antizapret-vpn-img antizapret-vpn
 #
-# Открываем порт только для TCP, UDP не используем
-sudo lxc config device add antizapret-vpn proxy_1194 proxy listen=tcp:[::]:1194 connect=tcp:127.0.0.1:1194
-# lxc config device add antizapret-vpn proxy_1194_udp proxy listen=udp:[::]:1194 connect=udp:127.0.0.1:1194
+# Открываем порт только для UDP, TCP не используем
+sudo lxc config device add antizapret-vpn proxy_1194_udp proxy listen=udp:[::]:1194 connect=udp:127.0.0.1:1194
+# sudo lxc config device add antizapret-vpn proxy_1194 proxy listen=tcp:[::]:1194 connect=tcp:127.0.0.1:1194
 #
 # Запускаем контейнер и ждем пока сгенерируется файл подключения ovpn
 sudo lxc start antizapret-vpn && sleep 10
 #
-# Получаем файл подключения только по TCP, UDP не используем
-# lxc file pull antizapret-vpn/root/easy-rsa-ipsec/CLIENT_KEY/antizapret-client-udp.ovpn antizapret-client-udp.ovpn
-sudo lxc file pull antizapret-vpn/root/easy-rsa-ipsec/CLIENT_KEY/antizapret-client-tcp.ovpn antizapret-client-tcp.ovpn
+# Настроим OpenVpn, изменяем настройки только для UDP
+# Удалим txqueuelen, keepalive, comp-lzo
+# Добавим cipher BF-CBC
+sudo lxc exec antizapret-vpn -- sed -i "/\b\(txqueuelen\|keepalive\)\b/d" /etc/openvpn/server/antizapret.conf
+sudo lxc exec antizapret-vpn -- sed -i "s/comp-lzo/cipher BF-CBC/g" /etc/openvpn/server/antizapret.conf
+#
+sudo lxc exec antizapret-vpn -- sed -i "s/comp-lzo/cipher BF-CBC/g" /root/easy-rsa-ipsec/templates/openvpn-udp-unified.conf
+sudo lxc exec antizapret-vpn -- sed -i "s/comp-lzo/cipher BF-CBC/g" /root/easy-rsa-ipsec/CLIENT_KEY/antizapret-client-udp.ovpn
+#
+sudo lxc restart antizapret-vpn
+#
+# Получаем файл подключения только по UDP, TCP не используем
+sudo lxc file pull antizapret-vpn/root/easy-rsa-ipsec/CLIENT_KEY/antizapret-client-udp.ovpn antizapret-client-udp.ovpn
+# sudo lxc file pull antizapret-vpn/root/easy-rsa-ipsec/CLIENT_KEY/antizapret-client-tcp.ovpn antizapret-client-tcp.ovpn
 #
 # Применим патчи:
 # 1. Патч для устройств Apple
@@ -64,8 +77,7 @@ sudo lxc exec antizapret-vpn -- sh -c "cd /root/dnsmap && patch -i p.patch"
 sudo lxc exec antizapret-vpn -- sed -i "s/idn/grep -Fv 'bеllonа' | CHARSET=UTF-8 idn/g" /root/antizapret/parse.sh
 #
 # Добавляем свои адреса в исключения
-sudo lxc file pull antizapret-vpn/root/antizapret/config/include-hosts-custom.txt include-hosts-custom.txt
-echo "youtube.com
+sudo lxc exec antizapret-vpn -- sh -c "echo 'youtube.com
 youtu.be
 ytimg.com
 ggpht.com
@@ -88,18 +100,12 @@ radiojar.com
 anicult.org
 1plus1tv.ru
 rutracker.cc
-ua" >> include-hosts-custom.txt
-sudo lxc file push include-hosts-custom.txt antizapret-vpn/root/antizapret/config/include-hosts-custom.txt
+ua' >> /root/antizapret/config/include-hosts-custom.txt"
 #
 # Дополнительные правки для YouTube
-sudo lxc file pull antizapret-vpn/root/antizapret/config/exclude-hosts-dist.txt exclude-hosts-dist.txt
-sed -i "/\b\(youtube\|youtu\|ytimg\|ggpht\|googleusercontent\)\b/d" exclude-hosts-dist.txt
-sudo lxc file push exclude-hosts-dist.txt antizapret-vpn/root/antizapret/config/exclude-hosts-dist.txt
+sudo lxc exec antizapret-vpn -- sed -i "/\b\(youtube\|youtu\|ytimg\|ggpht\|googleusercontent\)\b/d" /root/antizapret/config/exclude-hosts-dist.txt
 #
-sudo lxc file pull antizapret-vpn/root/antizapret/config/exclude-regexp-dist.awk exclude-regexp-dist.awk
-sed -i "/\b\(googleusercontent\)\b/d" exclude-regexp-dist.awk
-sudo lxc file push exclude-regexp-dist.awk antizapret-vpn/root/antizapret/config/exclude-regexp-dist.awk
+sudo lxc exec antizapret-vpn -- sed -i "/\b\(googleusercontent\)\b/d" /root/antizapret/config/exclude-regexp-dist.awk
 #
 # Обновим списки антизапрета
 lxc exec antizapret-vpn -- sh -c "LANG=C.UTF-8 /root/antizapret/doall.sh"
-
