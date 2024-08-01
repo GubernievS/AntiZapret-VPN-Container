@@ -1,5 +1,7 @@
 #
-# Скрипт для автоматического развертывания AntiZapret VPN Container - версия 1
+# Скрипт для автоматического развертывания AntiZapret VPN Container
+# + Разблокирован YouTube и часть сайтов блокируемых без решения суда
+# Версия 1 от 01.08.2024
 # https://github.com/GubernievS/AntiZapret-VPN-Container
 #
 # Протестировано на Ubuntu 20.04   Процессор: 1 core   Память: 1 Gb   Хранилище: 10 Gb
