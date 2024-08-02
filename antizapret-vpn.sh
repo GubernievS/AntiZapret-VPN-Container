@@ -1,9 +1,9 @@
 #
 # Скрипт для автоматического развертывания AntiZapret VPN Container
 # + Разблокирован YouTube и часть сайтов блокируемых без решения суда
-# Для увеличения скорости YouTube используется шифрование BF-CBC и UDP порт
+# Для увеличения скорости YouTube используется UDP порт
 #
-# Версия 2 от 02.08.2024
+# Версия 3 от 02.08.2024
 # https://github.com/GubernievS/AntiZapret-VPN-Container
 #
 # Протестировано на Ubuntu 20.04   Процессор: 1 core   Память: 1 Gb   Хранилище: 10 Gb
@@ -12,7 +12,7 @@
 # 2. Загрузить этот файл на сервер в папку root по SFTP (например через программу FileZilla)
 # 3. В консоли под root выполнить:
 # chmod +x ./antizapret-vpn.sh && ./antizapret-vpn.sh
-# 4. Указать вручную LXD snap track = 4.0
+# 4. На запрос системы выберите вручную LXD snap track = 4.0 или выше
 # 5. Скопировать файл antizapret-client-udp.ovpn с сервера из папки root
 #
 # Полезные ссылки
@@ -31,7 +31,7 @@ sudo apt update && sudo apt upgrade -y
 # Устанавливаем LXD и настраиваем
 sudo apt install lxd -y
 #
-#  !!! Укажите вручную LXD snap track = 4.0 !!!
+#  !!! На запрос системы выберите вручную LXD snap track = 4.0 или выше !!!
 #
 sudo lxd init --auto
 #
@@ -48,13 +48,11 @@ sudo lxc start antizapret-vpn && sleep 10
 #
 # Настроим OpenVpn, изменяем настройки только для UDP
 # Удалим txqueuelen, keepalive, comp-lzo
-# Добавим cipher BF-CBC
-sudo lxc exec antizapret-vpn -- sed -i "/\b\(txqueuelen\|keepalive\)\b/d" /etc/openvpn/server/antizapret.conf
-sudo lxc exec antizapret-vpn -- sed -i "s/comp-lzo/cipher BF-CBC/g" /etc/openvpn/server/antizapret.conf
+sudo lxc exec antizapret-vpn -- sed -i "/\b\(txqueuelen\|keepalive\|comp-lzo\)\b/d" /etc/openvpn/server/antizapret.conf
+sudo lxc exec antizapret-vpn -- sed -i "/\b\(txqueuelen\|keepalive\|comp-lzo\)\b/d" /root/easy-rsa-ipsec/templates/openvpn-udp-unified.conf
+sudo lxc exec antizapret-vpn -- sed -i "/\b\(txqueuelen\|keepalive\|comp-lzo\)\b/d" /root/easy-rsa-ipsec/CLIENT_KEY/antizapret-client-udp.ovpn
 #
-sudo lxc exec antizapret-vpn -- sed -i "s/comp-lzo/cipher BF-CBC/g" /root/easy-rsa-ipsec/templates/openvpn-udp-unified.conf
-sudo lxc exec antizapret-vpn -- sed -i "s/comp-lzo/cipher BF-CBC/g" /root/easy-rsa-ipsec/CLIENT_KEY/antizapret-client-udp.ovpn
-#
+# Перезапускаем контейнер
 sudo lxc restart antizapret-vpn
 #
 # Получаем файл подключения только по UDP, TCP не используем
