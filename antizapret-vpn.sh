@@ -3,7 +3,7 @@
 # + Разблокирован YouTube и часть сайтов блокируемых без решения суда
 # Для увеличения скорости YouTube используется UDP порт
 #
-# Версия 3 от 02.08.2024
+# Версия 3.1 от 02.08.2024
 # https://github.com/GubernievS/AntiZapret-VPN-Container
 #
 # Протестировано на Ubuntu 20.04   Процессор: 1 core   Память: 1 Gb   Хранилище: 10 Gb
@@ -51,6 +51,9 @@ sudo lxc start antizapret-vpn && sleep 10
 sudo lxc exec antizapret-vpn -- sed -i "/\b\(txqueuelen\|keepalive\|comp-lzo\)\b/d" /etc/openvpn/server/antizapret.conf
 sudo lxc exec antizapret-vpn -- sed -i "/\b\(txqueuelen\|keepalive\|comp-lzo\)\b/d" /root/easy-rsa-ipsec/templates/openvpn-udp-unified.conf
 sudo lxc exec antizapret-vpn -- sed -i "/\b\(txqueuelen\|keepalive\|comp-lzo\)\b/d" /root/easy-rsa-ipsec/CLIENT_KEY/antizapret-client-udp.ovpn
+#
+# Отключим OpenVpn TCP
+sudo lxc exec antizapret-vpn -- systemctl disable openvpn-server@antizapret-tcp
 #
 # Перезапускаем контейнер
 sudo lxc restart antizapret-vpn
