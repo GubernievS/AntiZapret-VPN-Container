@@ -1,9 +1,9 @@
 #
 # Скрипт для автоматического развертывания AntiZapret VPN Container
 # + Разблокирован YouTube и часть сайтов блокируемых без решения суда
-# Для увеличения скорости YouTube используется UDP порт
+# Для увеличения скорости используется UDP и 443 порт для обхода блокировки по портам
 #
-# Версия 3.1 от 02.08.2024
+# Версия 3.2 от 02.08.2024
 # https://github.com/GubernievS/AntiZapret-VPN-Container
 #
 # Протестировано на Ubuntu 20.04   Процессор: 1 core   Память: 1 Gb   Хранилище: 10 Gb
@@ -19,7 +19,9 @@
 # https://ntc.party/t/контейнер-vpn-антизапрета-для-установки-на-собственный-сервер/129
 # https://bitbucket.org/anticensority/antizapret-vpn-container/src/master/
 #
-# Команды для обновления списка антизапрета и очистка кеша днс
+# Изменить файл с личным списком антизапрета include-hosts-custom.txt
+# sudo lxc exec antizapret-vpn -- nano /root/antizapret/config/include-hosts-custom.txt
+# Потом выполните команды для обновления списка антизапрета и очистка кеша днс
 # lxc exec antizapret-vpn -- sh -c "LANG=C.UTF-8 /root/antizapret/doall.sh"
 # lxc exec antizapret-vpn -- sh -c "echo 'cache.clear()' | socat - /run/knot-resolver/control/1"
 #
@@ -40,7 +42,7 @@ sudo lxc image import https://antizapret.prostovpn.org/container-images/az-vpn -
 sudo lxc init antizapret-vpn-img antizapret-vpn
 #
 # Открываем порт только для UDP, TCP не используем
-sudo lxc config device add antizapret-vpn proxy_1194_udp proxy listen=udp:[::]:1194 connect=udp:127.0.0.1:1194
+sudo lxc config device add antizapret-vpn proxy_443_udp proxy listen=udp:[::]:443 connect=udp:127.0.0.1:1194
 # sudo lxc config device add antizapret-vpn proxy_1194 proxy listen=tcp:[::]:1194 connect=tcp:127.0.0.1:1194
 #
 # Запускаем контейнер и ждем пока сгенерируется файл подключения ovpn
@@ -109,4 +111,4 @@ sudo lxc exec antizapret-vpn -- sed -i "/\b\(youtube\|youtu\|ytimg\|ggpht\|googl
 sudo lxc exec antizapret-vpn -- sed -i "/\b\(googleusercontent\)\b/d" /root/antizapret/config/exclude-regexp-dist.awk
 #
 # Обновим списки антизапрета
-lxc exec antizapret-vpn -- sh -c "LANG=C.UTF-8 /root/antizapret/doall.sh"
+sudo lxc exec antizapret-vpn -- sh -c "LANG=C.UTF-8 /root/antizapret/doall.sh"
