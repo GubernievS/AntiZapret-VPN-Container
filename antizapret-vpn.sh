@@ -3,17 +3,16 @@
 # + Разблокирован YouTube и часть сайтов блокируемых без решения суда
 # Для увеличения скорости используется UDP и 443 порт для обхода блокировки по портам
 #
-# Версия 3.3 от 02.08.2024
+# Версия 4 от 03.08.2024
 # https://github.com/GubernievS/AntiZapret-VPN-Container
 #
 # Протестировано на Ubuntu 20.04   Процессор: 1 core   Память: 1 Gb   Хранилище: 10 Gb
 #
-# 1. Установить на VDS Ubuntu 20.04
+# 1. Установить на VDS Ubuntu 20.04 или новее
 # 2. Загрузить этот файл на сервер в папку root по SFTP (например через программу FileZilla)
 # 3. В консоли под root выполнить:
 # chmod +x ./antizapret-vpn.sh && ./antizapret-vpn.sh
-# 4. На запрос системы выберите вручную LXD snap track = 4.0 или выше
-# 5. Скопировать файл antizapret-client-udp.ovpn с сервера из папки root
+# 4. Скопировать файл antizapret-client-udp.ovpn с сервера из папки root
 #
 # Обсуждение скрипта
 # https://ntc.party/t/скрипт-для-автоматического-развертывания-antizapret-vpn-container-youtube/8379
@@ -34,10 +33,8 @@
 sudo apt update && sudo apt upgrade -y
 #
 # Устанавливаем LXD и настраиваем
-sudo apt install lxd -y
-#
-#  !!! На запрос системы выберите вручную LXD snap track = 4.0 или выше !!!
-#
+sudo apt install snapd -y
+sudo snap install lxd --channel=latest/stable
 sudo lxd init --auto
 #
 # Импортируем и инициализируем контейнер
@@ -53,18 +50,15 @@ sudo lxc start antizapret-vpn && sleep 10
 #
 # Настроим OpenVpn, изменяем настройки только для UDP
 # Удалим txqueuelen, keepalive, comp-lzo и изменим порт
-sudo lxc exec antizapret-vpn -- sed -i "s/comp-lzo/port 443/g" /etc/openvpn/server/antizapret.conf
-sudo lxc exec antizapret-vpn -- sed -i "s/comp-lzo/port 443/g" /root/easy-rsa-ipsec/templates/openvpn-udp-unified.conf
-sudo lxc exec antizapret-vpn -- sed -i "s/comp-lzo/port 443/g" /root/easy-rsa-ipsec/CLIENT_KEY/antizapret-client-udp.ovpn
+sudo lxc exec antizapret-vpn -- sed -i 's/comp-lzo/port 443/g' /etc/openvpn/server/antizapret.conf
+sudo lxc exec antizapret-vpn -- sed -i 's/comp-lzo/port 443\
+cipher AES-128-GCM/g' /root/easy-rsa-ipsec/templates/openvpn-udp-unified.conf
+sudo lxc exec antizapret-vpn -- sed -i 's/comp-lzo/port 443\
+cipher AES-128-GCM/g' /root/easy-rsa-ipsec/CLIENT_KEY/antizapret-client-udp.ovpn
 sudo lxc exec antizapret-vpn -- sed -i "/\b\(txqueuelen\|keepalive\)\b/d" /etc/openvpn/server/antizapret.conf
-sudo lxc exec antizapret-vpn -- sed -i "/\b\(txqueuelen\|keepalive\)\b/d" /root/easy-rsa-ipsec/templates/openvpn-udp-unified.conf
-sudo lxc exec antizapret-vpn -- sed -i "/\b\(txqueuelen\|keepalive\)\b/d" /root/easy-rsa-ipsec/CLIENT_KEY/antizapret-client-udp.ovpn
 #
 # Отключим OpenVpn TCP
 sudo lxc exec antizapret-vpn -- systemctl disable openvpn-server@antizapret-tcp
-#
-# Перезапускаем контейнер
-sudo lxc restart antizapret-vpn
 #
 # Получаем файл подключения только по UDP, TCP не используем
 sudo lxc file pull antizapret-vpn/root/easy-rsa-ipsec/CLIENT_KEY/antizapret-client-udp.ovpn antizapret-client-udp.ovpn
@@ -86,14 +80,7 @@ sudo lxc exec antizapret-vpn -- sh -c "cd /root/dnsmap && patch -i p.patch"
 sudo lxc exec antizapret-vpn -- sed -i "s/idn/grep -Fv 'bеllonа' | CHARSET=UTF-8 idn/g" /root/antizapret/parse.sh
 #
 # Добавляем свои адреса в исключения
-sudo lxc exec antizapret-vpn -- sh -c "echo 'youtube.com
-youtu.be
-ytimg.com
-ggpht.com
-googleusercontent.com
-googlevideo.com
-google.com
-googleapis.com
+sudo lxc exec antizapret-vpn -- sh -c "echo 'googlevideo.com
 bbc.co.uk
 bbci.co.uk
 digitalocean.com
@@ -109,12 +96,22 @@ radiojar.com
 anicult.org
 1plus1tv.ru
 rutracker.cc
-ua' >> /root/antizapret/config/include-hosts-custom.txt"
+ua' > /root/antizapret/config/include-hosts-custom.txt"
 #
-# Дополнительные правки для YouTube
-sudo lxc exec antizapret-vpn -- sed -i "/\b\(youtube\|youtu\|ytimg\|ggpht\|googleusercontent\)\b/d" /root/antizapret/config/exclude-hosts-dist.txt
-#
-sudo lxc exec antizapret-vpn -- sed -i "/\b\(googleusercontent\)\b/d" /root/antizapret/config/exclude-regexp-dist.awk
+# Если добавление googlevideo.com в исключения не помогает разблокировке YouTube попробуйте этот вариант:
+# Полная разблокировка YouTube
+#sudo lxc exec antizapret-vpn -- sh -c "echo 'youtube.com
+#youtu.be
+#ytimg.com
+#ggpht.com
+#googleusercontent.com
+#google.com
+#googleapis.com' >> /root/antizapret/config/include-hosts-custom.txt"
+#sudo lxc exec antizapret-vpn -- sed -i "/\b\(youtube\|youtu\|ytimg\|ggpht\|googleusercontent\)\b/d" /root/antizapret/config/exclude-hosts-dist.txt
+#sudo lxc exec antizapret-vpn -- sed -i "/\b\(googleusercontent\)\b/d" /root/antizapret/config/exclude-regexp-dist.awk
 #
 # Обновим списки антизапрета
 sudo lxc exec antizapret-vpn -- sh -c "LANG=C.UTF-8 /root/antizapret/doall.sh"
+#
+# Перезапускаем контейнер
+sudo lxc restart antizapret-vpn
