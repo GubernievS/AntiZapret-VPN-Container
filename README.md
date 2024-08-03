@@ -8,14 +8,13 @@
 
 Протестировано на Ubuntu 20.04   Процессор: 1 core   Память: 1 Gb   Хранилище: 10 Gb
 
-1. Установить на VDS Ubuntu 20.04
+1. Установить на VDS Ubuntu 20.04 или новее
 2. Загрузить этот файл на сервер в папку root по SFTP (например через программу FileZilla)
 3. В консоли под root выполнить:
 ```sh
 chmod +x ./antizapret-vpn.sh && ./antizapret-vpn.sh
 ```
-4. Указать вручную LXD snap track = 4.0
-5. Скопировать файл antizapret-client-udp.ovpn с сервера из папки root
+4. Скопировать файл antizapret-client-udp.ovpn с сервера из папки root
 
 Обсуждение скрипта
 https://ntc.party/t/скрипт-для-автоматического-развертывания-antizapret-vpn-container-youtube/8379
