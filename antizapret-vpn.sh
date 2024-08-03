@@ -24,8 +24,8 @@
 # Изменить файл с личным списком антизапрета include-hosts-custom.txt
 # sudo lxc exec antizapret-vpn -- nano /root/antizapret/config/include-hosts-custom.txt
 # Потом выполните команды для обновления списка антизапрета и очистка кеша днс
-# lxc exec antizapret-vpn -- sh -c "LANG=C.UTF-8 /root/antizapret/doall.sh"
-# lxc exec antizapret-vpn -- sh -c "echo 'cache.clear()' | socat - /run/knot-resolver/control/1"
+# sudo lxc exec antizapret-vpn -- sh -c "LANG=C.UTF-8 /root/antizapret/doall.sh"
+# sudo lxc exec antizapret-vpn -- sh -c "echo 'cache.clear()' | socat - /run/knot-resolver/control/1"
 #
 # ====================================================================================================
 #
@@ -51,11 +51,11 @@ sudo lxc start antizapret-vpn && sleep 10
 # Настроим OpenVpn, изменяем настройки только для UDP
 # Удалим txqueuelen, keepalive, comp-lzo и изменим порт
 sudo lxc exec antizapret-vpn -- sed -i 's/comp-lzo/port 443/g' /etc/openvpn/server/antizapret.conf
+sudo lxc exec antizapret-vpn -- sed -i "/\b\(txqueuelen\|keepalive\)\b/d" /etc/openvpn/server/antizapret.conf
 sudo lxc exec antizapret-vpn -- sed -i 's/comp-lzo/port 443\
 cipher AES-128-GCM/g' /root/easy-rsa-ipsec/templates/openvpn-udp-unified.conf
 sudo lxc exec antizapret-vpn -- sed -i 's/comp-lzo/port 443\
 cipher AES-128-GCM/g' /root/easy-rsa-ipsec/CLIENT_KEY/antizapret-client-udp.ovpn
-sudo lxc exec antizapret-vpn -- sed -i "/\b\(txqueuelen\|keepalive\)\b/d" /etc/openvpn/server/antizapret.conf
 #
 # Отключим OpenVpn TCP
 sudo lxc exec antizapret-vpn -- systemctl disable openvpn-server@antizapret-tcp
@@ -112,6 +112,7 @@ ua' > /root/antizapret/config/include-hosts-custom.txt"
 #
 # Обновим списки антизапрета
 sudo lxc exec antizapret-vpn -- sh -c "LANG=C.UTF-8 /root/antizapret/doall.sh"
+sudo lxc exec antizapret-vpn -- sh -c "echo 'cache.clear()' | socat - /run/knot-resolver/control/1"
 #
 # Перезапускаем контейнер
 sudo lxc restart antizapret-vpn
