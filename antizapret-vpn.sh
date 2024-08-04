@@ -3,7 +3,7 @@
 # + Разблокирован YouTube и часть сайтов блокируемых без решения суда
 # Для увеличения скорости используется UDP и 443 порт для обхода блокировки по портам
 #
-# Версия 4 от 03.08.2024
+# Версия 4.1 от 04.08.2024
 # https://github.com/GubernievS/AntiZapret-VPN-Container
 #
 # Протестировано на Ubuntu 20.04   Процессор: 1 core   Память: 1 Gb   Хранилище: 10 Gb
@@ -49,9 +49,9 @@ sudo lxc config device add antizapret-vpn proxy_443_udp proxy listen=udp:[::]:44
 sudo lxc start antizapret-vpn && sleep 10
 #
 # Настроим OpenVpn, изменяем настройки только для UDP
-# Удалим txqueuelen, keepalive, comp-lzo и изменим порт
-sudo lxc exec antizapret-vpn -- sed -i 's/comp-lzo/port 443/g' /etc/openvpn/server/antizapret.conf
+# Удалим keepalive 35 160, txqueuelen 250, comp-lzo, добавим cipher AES-128-GCM и изменим порт с 1194 на 443
 sudo lxc exec antizapret-vpn -- sed -i "/\b\(txqueuelen\|keepalive\)\b/d" /etc/openvpn/server/antizapret.conf
+sudo lxc exec antizapret-vpn -- sed -i 's/comp-lzo/port 443/g' /etc/openvpn/server/antizapret.conf
 sudo lxc exec antizapret-vpn -- sed -i 's/comp-lzo/port 443\
 cipher AES-128-GCM/g' /root/easy-rsa-ipsec/templates/openvpn-udp-unified.conf
 sudo lxc exec antizapret-vpn -- sed -i 's/comp-lzo/port 443\
@@ -80,7 +80,8 @@ sudo lxc exec antizapret-vpn -- sh -c "cd /root/dnsmap && patch -i p.patch"
 sudo lxc exec antizapret-vpn -- sed -i "s/idn/grep -Fv 'bеllonа' | CHARSET=UTF-8 idn/g" /root/antizapret/parse.sh
 #
 # Добавляем свои адреса в исключения
-sudo lxc exec antizapret-vpn -- sh -c "echo 'googlevideo.com
+sudo lxc exec antizapret-vpn -- sh -c "echo 'youtube.com
+googlevideo.com
 bbc.co.uk
 bbci.co.uk
 digitalocean.com
@@ -97,16 +98,18 @@ anicult.org
 1plus1tv.ru
 rutracker.cc
 ua' > /root/antizapret/config/include-hosts-custom.txt"
+sudo lxc exec antizapret-vpn -- sed -i "/\b\(youtube\)\b/d" /root/antizapret/config/exclude-hosts-dist.txt
 #
-# Если добавление googlevideo.com в исключения не помогает разблокировке YouTube попробуйте этот вариант:
+# Если добавление youtube.com и googlevideo.com в исключения не помогает разблокировке YouTube попробуйте выполнить эти  команды:
 # Полная разблокировка YouTube
-#sudo lxc exec antizapret-vpn -- sh -c "echo 'youtube.com
-#youtu.be
+#
+#sudo lxc exec antizapret-vpn -- sh -c "echo 'youtu.be
 #ytimg.com
 #ggpht.com
 #googleusercontent.com
 #google.com
 #googleapis.com' >> /root/antizapret/config/include-hosts-custom.txt"
+#
 #sudo lxc exec antizapret-vpn -- sed -i "/\b\(youtube\|youtu\|ytimg\|ggpht\|googleusercontent\)\b/d" /root/antizapret/config/exclude-hosts-dist.txt
 #sudo lxc exec antizapret-vpn -- sed -i "/\b\(googleusercontent\)\b/d" /root/antizapret/config/exclude-regexp-dist.awk
 #
