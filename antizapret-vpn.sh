@@ -3,7 +3,7 @@
 # + Разблокирован YouTube и часть сайтов блокируемых без решения суда
 # Для увеличения скорости используется UDP и 443 порт для обхода блокировки по портам
 #
-# Версия 5 от 05.08.2024
+# Версия 5.1 от 05.08.2024
 # https://github.com/GubernievS/AntiZapret-VPN-Container
 #
 # Протестировано на Ubuntu 20.04   Процессор: 1 core   Память: 1 Gb   Хранилище: 10 Gb
@@ -27,6 +27,11 @@
 # sudo lxc exec antizapret-vpn -- sh -c "LANG=C.UTF-8 /root/antizapret/doall.sh"
 # sudo lxc exec antizapret-vpn -- sh -c "echo 'cache.clear()' | socat - /run/knot-resolver/control/1"
 #
+# Изменить конфигурацию OpenVpn сервера с UDP портом
+# sudo lxc exec antizapret-vpn -- nano /etc/openvpn/server/antizapret.conf
+# Потом перезапустить OpenVpn сервер
+# sudo lxc exec antizapret-vpn -- service openvpn restart
+#
 # ====================================================================================================
 #
 # Обновляем Ubuntu
@@ -48,22 +53,24 @@ sudo lxc config device add antizapret-vpn proxy_443_udp proxy listen=udp:[::]:44
 # Запускаем контейнер и ждем пока сгенерируется файл подключения ovpn
 sudo lxc start antizapret-vpn && sleep 10
 #
-# Настроим OpenVpn, изменяем настройки только для UDP
-# Удалим keepalive 35 160, txqueuelen 250, comp-lzo, добавим cipher AES-128-GCM и изменим порт с 1194 на 443
-sudo lxc exec antizapret-vpn -- sed -i '/^[[:space:]]*$/d;/\b\(txqueuelen\|keepalive\)\b/d;s/comp-lzo/port 443/g' /etc/openvpn/server/antizapret.conf
+# Настраиваем OpenVpn, изменяем настройки только для UDP
+# Удалим keepalive, comp-lzo, увеличим txqueuelen до 1000, добавим fast-io и cipher AES-128-GCM, изменим порт с 1194 на 443
+sudo lxc exec antizapret-vpn -- sed -i '/^[[:space:]]*$/d;/\b\(txqueuelen\|keepalive\)\b/d;s/comp-lzo/port 443\
+txqueuelen 1000\
+fast-io/g' /etc/openvpn/server/antizapret.conf
 sudo lxc exec antizapret-vpn -- sed -i '/^[@#]/d;/^[[:space:]]*$/d;s/comp-lzo/port 443\
 cipher AES-128-GCM/g' /root/easy-rsa-ipsec/templates/openvpn-udp-unified.conf
 sudo lxc exec antizapret-vpn -- sed -i '/^[@#]/d;/^[[:space:]]*$/d;s/comp-lzo/port 443\
 cipher AES-128-GCM/g' /root/easy-rsa-ipsec/CLIENT_KEY/antizapret-client-udp.ovpn
 #
-# Отключим OpenVpn TCP
+# Отключаем OpenVpn TCP
 sudo lxc exec antizapret-vpn -- systemctl disable openvpn-server@antizapret-tcp
 #
 # Получаем файл подключения только по UDP, TCP не используем
 sudo lxc file pull antizapret-vpn/root/easy-rsa-ipsec/CLIENT_KEY/antizapret-client-udp.ovpn antizapret-client-udp.ovpn
 # sudo lxc file pull antizapret-vpn/root/easy-rsa-ipsec/CLIENT_KEY/antizapret-client-tcp.ovpn antizapret-client-tcp.ovpn
 #
-# Патч для устройств Apple https://ntc.party/t/ios-macos-openvpn/4468
+# Ставим патч для устройств Apple https://ntc.party/t/ios-macos-openvpn/4468
 sudo lxc exec antizapret-vpn -- apt update && sudo apt upgrade -y
 sudo lxc exec antizapret-vpn -- apt remove --purge python3-dnslib -y
 sudo lxc exec antizapret-vpn -- apt autoremove -y
@@ -72,7 +79,7 @@ sudo lxc exec antizapret-vpn -- pip3 install dnslib
 sudo lxc exec antizapret-vpn -- wget https://raw.githubusercontent.com/nzkhammatov/antizapret_ios_patch/main/p.patch -O /root/dnsmap/p.patch
 sudo lxc exec antizapret-vpn -- sh -c "cd /root/dnsmap && patch -i p.patch"
 #
-# Обновим antizapret из репозитория
+# Обновляем antizapret до последней версии из репозитория
 sudo lxc exec antizapret-vpn -- mv -f /root/antizapret/process.sh /root/antizapret-process.sh
 sudo lxc exec antizapret-vpn -- rm -rf /root/antizapret
 sudo lxc exec antizapret-vpn -- git clone https://bitbucket.org/anticensority/antizapret-pac-generator-light.git /root/antizapret
@@ -109,13 +116,13 @@ anicult.org
 12putinu.net
 padlet.com' > /root/antizapret/config/include-hosts-custom.txt"
 #
-# Очищаем исключения из исключений
+# Удаляем исключения из исключений
 sudo lxc exec antizapret-vpn -- sed -i "/\b\(youtube\|youtu\|ytimg\|ggpht\|googleusercontent\|cloudfront\|ftcdn\)\b/d" /root/antizapret/config/exclude-hosts-dist.txt
 sudo lxc exec antizapret-vpn -- sed -i "/\b\(googleusercontent\|cloudfront\|deviantart\)\b/d" /root/antizapret/config/exclude-regexp-dist.awk
 #
-# Обновим списки антизапрета
+# Обновляем списки антизапрета
 sudo lxc exec antizapret-vpn -- sh -c "LANG=C.UTF-8 /root/antizapret/doall.sh"
 sudo lxc exec antizapret-vpn -- sh -c "echo 'cache.clear()' | socat - /run/knot-resolver/control/1"
 #
-# Перезапускаем контейнер
+# Перезапускаем контейнер антизапрета
 sudo lxc restart antizapret-vpn
