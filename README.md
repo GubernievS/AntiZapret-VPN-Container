@@ -2,7 +2,7 @@
 
 Скрипт для автоматического развертывания AntiZapret VPN Container
 
-Разблокирован YouTube и часть сайтов блокируемых без решения суда
+\+ Разблокирован YouTube и часть сайтов блокируемых без решения суда
 
 Для увеличения скорости используется UDP и 443 порт для обхода блокировки по портам
 
@@ -31,4 +31,13 @@ sudo lxc exec antizapret-vpn -- nano /root/antizapret/config/include-hosts-custo
 ```sh
 lxc exec antizapret-vpn -- sh -c "LANG=C.UTF-8 /root/antizapret/doall.sh"
 lxc exec antizapret-vpn -- sh -c "echo 'cache.clear()' | socat - /run/knot-resolver/control/1"
+```
+
+Изменить конфигурацию OpenVpn сервера с UDP портом
+```sh
+sudo lxc exec antizapret-vpn -- nano /etc/openvpn/server/antizapret.conf
+```
+Потом перезапустить OpenVpn сервер
+```sh
+sudo lxc exec antizapret-vpn -- service openvpn restart
 ```
