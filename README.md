@@ -27,7 +27,7 @@ https://bitbucket.org/anticensority/antizapret-vpn-container/src/master/
 ```sh
 sudo lxc exec antizapret-vpn -- nano /root/antizapret/config/include-hosts-custom.txt
 ```
-Потом выполните команды для обновления списка антизапрета и очистка кеша днс
+Потом выполните команды для обновления списка антизапрета и очистка кеша DNS
 ```sh
 lxc exec antizapret-vpn -- sh -c /root/antizapret/doall.sh
 lxc exec antizapret-vpn -- sh -c "echo 'cache.clear()' | socat - /run/knot-resolver/control/1"
