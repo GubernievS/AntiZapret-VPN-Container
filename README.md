@@ -48,5 +48,5 @@ sudo lxc exec antizapret-vpn -- service openvpn restart
 sudo lxc exec antizapret-vpn -- nano /etc/openvpn/server/logs/status.log -v
 ```
 ***
-Инструкция по настройке на роутере [Keenetic](./Keenetic.md)
+Инструкция по настройке на роутерах [Keenetic](./Keenetic.md) и [TP-Link](./TP-Link.md)
 
