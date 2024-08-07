@@ -129,7 +129,7 @@ sudo lxc exec antizapret-vpn -- sed -i "/\b\(googleusercontent\|cloudfront\|devi
 # Добавляем AdGuard DNS для блокировки рекламы, отслеживающих модулей и фишинга
 sudo lxc exec antizapret-vpn -- sh -c "echo '
 policy.add(policy.all(policy.FORWARD({'94.140.14.14'})))
-policy.add(policy.all(policy.FORWARD({'94.140.15.15'})))' > /etc/knot-resolver/kresd.conf"
+policy.add(policy.all(policy.FORWARD({'94.140.15.15'})))' >> /etc/knot-resolver/kresd.conf"
 #
 # Обновляем списки антизапрета
 sudo lxc exec antizapret-vpn -- sh -c /root/antizapret/doall.sh
