@@ -126,7 +126,7 @@ padlet.com' > /root/antizapret/config/include-hosts-custom.txt"
 sudo lxc exec antizapret-vpn -- sed -i "/\b\(youtube\|youtu\|ytimg\|ggpht\|googleusercontent\|cloudfront\|ftcdn\)\b/d" /root/antizapret/config/exclude-hosts-dist.txt
 sudo lxc exec antizapret-vpn -- sed -i "/\b\(googleusercontent\|cloudfront\|deviantart\)\b/d" /root/antizapret/config/exclude-regexp-dist.awk
 #
-# Добавляем блокирующий рекламу AdGuard DNS
+# Добавляем AdGuard DNS для блокировки рекламы, отслеживающих модулей и фишинга
 sudo lxc exec antizapret-vpn -- sh -c "echo '
 policy.add(policy.all(policy.FORWARD({'94.140.14.14'})))
 policy.add(policy.all(policy.FORWARD({'94.140.15.15'})))' > /etc/knot-resolver/kresd.conf"
