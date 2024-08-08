@@ -96,9 +96,9 @@ ytimg.com
 ggpht.com
 googleapis.com
 gstatic.com
-gvt1.com 
-gvt2.com 
-gvt3.com 
+gvt1.com
+gvt2.com
+gvt3.com
 digitalocean.com
 strava.com
 adguard-vpn.com
