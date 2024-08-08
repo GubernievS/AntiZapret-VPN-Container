@@ -3,13 +3,13 @@
 # + Разблокирован YouTube и часть сайтов блокируемых без решения суда
 # Для увеличения скорости используется UDP и 443 порт для обхода блокировки по портам
 #
-# Версия 5.6 от 07.08.2024
+# Версия 5.7 от 07.08.2024
 # https://github.com/GubernievS/AntiZapret-VPN-Container
 #
 # Протестировано на Ubuntu 20.04 - Процессор: 1 core Память: 1 Gb Хранилище: 10 Gb
 #
 # Установка:
-# 1. Установить на VDS Ubuntu 20.04 (или новее если 2 Gb памяти)
+# 1. Устанавливать на чистую Ubuntu 20.04 (или новее если памяти 2 Gb и больше)
 # 2. Загрузить этот файл на сервер в папку root по SFTP (например через программу FileZilla)
 # 3. В консоли под root выполнить:
 # chmod +x ./antizapret-vpn.sh && ./antizapret-vpn.sh
@@ -25,7 +25,7 @@
 # Изменить файл с личным списком антизапрета include-hosts-custom.txt
 # sudo lxc exec antizapret-vpn -- nano /root/antizapret/config/include-hosts-custom.txt
 # Потом выполните команды для обновления списка антизапрета и очистка кеша DNS
-# sudo lxc exec antizapret-vpn -- sh -c /root/antizapret/doall.sh
+# sudo lxc exec antizapret-vpn -- /root/antizapret/doall.sh
 # sudo lxc exec antizapret-vpn -- sh -c "echo 'cache.clear()' | socat - /run/knot-resolver/control/1"
 #
 # Изменить конфигурацию OpenVpn сервера с UDP портом
@@ -139,7 +139,7 @@ policy.add(policy.all(policy.FORWARD({\'94.140.14.14\'})))
 policy.add(policy.all(policy.FORWARD({\'94.140.15.15\'})))' >> /etc/knot-resolver/kresd.conf"
 #
 # Обновляем списки антизапрета
-sudo lxc exec antizapret-vpn -- sh -c /root/antizapret/doall.sh
+sudo lxc exec antizapret-vpn -- /root/antizapret/doall.sh
 sudo lxc exec antizapret-vpn -- sh -c "echo 'cache.clear()' | socat - /run/knot-resolver/control/1"
 #
 # Перезапускаем контейнер антизапрета
