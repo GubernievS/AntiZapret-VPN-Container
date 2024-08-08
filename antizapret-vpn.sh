@@ -25,7 +25,7 @@
 # Изменить файл с личным списком антизапрета include-hosts-custom.txt
 # sudo lxc exec antizapret-vpn -- nano /root/antizapret/config/include-hosts-custom.txt
 # Потом выполните команды для обновления списка антизапрета и очистка кеша DNS
-# sudo lxc exec antizapret-vpn -- ./root/antizapret/doall.sh
+# sudo lxc exec antizapret-vpn -- /root/antizapret/doall.sh
 # sudo lxc exec antizapret-vpn -- sh -c "echo 'cache.clear()' | socat - /run/knot-resolver/control/1"
 #
 # Изменить конфигурацию OpenVpn сервера с UDP портом
@@ -139,7 +139,7 @@ policy.add(policy.all(policy.FORWARD({\'94.140.14.14\'})))
 policy.add(policy.all(policy.FORWARD({\'94.140.15.15\'})))' >> /etc/knot-resolver/kresd.conf"
 #
 # Обновляем списки антизапрета
-sudo lxc exec antizapret-vpn -- ./root/antizapret/doall.sh
+sudo lxc exec antizapret-vpn -- /root/antizapret/doall.sh
 sudo lxc exec antizapret-vpn -- sh -c "echo 'cache.clear()' | socat - /run/knot-resolver/control/1"
 #
 # Перезапускаем контейнер антизапрета
