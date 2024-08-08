@@ -92,6 +92,7 @@ sudo lxc exec antizapret-vpn -- mv -f /root/antizapret-process.sh /root/antizapr
 # Добавляем свои адреса в исключения и адреса из https://bitbucket.org/anticensority/russian-unlisted-blocks/src/master/readme.txt
 sudo lxc exec antizapret-vpn -- sh -c "echo 'youtube.com
 googlevideo.com
+ytimg.com
 digitalocean.com
 strava.com
 adguard-vpn.com
