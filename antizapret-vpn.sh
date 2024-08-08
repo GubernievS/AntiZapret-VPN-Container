@@ -3,7 +3,7 @@
 # + Разблокирован YouTube и часть сайтов блокируемых без решения суда
 # Для увеличения скорости используется UDP и 443 порт для обхода блокировки по портам
 #
-# Версия 5.5 от 07.08.2024
+# Версия 5.6 от 07.08.2024
 # https://github.com/GubernievS/AntiZapret-VPN-Container
 #
 # Протестировано на Ubuntu 20.04 - Процессор: 1 core Память: 1 Gb Хранилище: 10 Gb
@@ -93,6 +93,12 @@ sudo lxc exec antizapret-vpn -- mv -f /root/antizapret-process.sh /root/antizapr
 sudo lxc exec antizapret-vpn -- sh -c "echo 'youtube.com
 googlevideo.com
 ytimg.com
+ggpht.com
+googleapis.com
+gstatic.com
+gvt1.com 
+gvt2.com 
+gvt3.com 
 digitalocean.com
 strava.com
 adguard-vpn.com
