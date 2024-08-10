@@ -18,10 +18,10 @@ chmod +x ./antizapret-vpn.sh && ./antizapret-vpn.sh
 ```
 4. Скопировать файл antizapret-client-udp.ovpn или antizapret-client-tcp.ovpn с сервера из папки root
 ***
-Обсуждение скрипта/
+Обсуждение скрипта\
 https://ntc.party/t/скрипт-для-автоматического-развертывания-antizapret-vpn-container-youtube/8379
 
-Полезные ссылки/
+Полезные ссылки\
 https://ntc.party/t/контейнер-vpn-антизапрета-для-установки-на-собственный-сервер/129
 https://bitbucket.org/anticensority/antizapret-vpn-container/src/master/
 ***
