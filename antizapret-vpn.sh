@@ -1,9 +1,13 @@
+#!/bin/bash
+set -e
 #
 # Скрипт для автоматического развертывания AntiZapret VPN Container
 # + Разблокирован YouTube и часть сайтов блокируемых без решения суда
-# Для увеличения скорости используется UDP и 443 порт для обхода блокировки по портам
+# Для увеличения скорости рекомендуется использовать подключение по UDP
+# У кого нет возможности подключаться по UDP - есть возможность подключаться по TCP
+# Используется 443 порт вместо 1194 для обхода блокировки по портам
 #
-# Версия 5.8 от 07.08.2024
+# Версия 6 от 10.08.2024
 # https://github.com/GubernievS/AntiZapret-VPN-Container
 #
 # Протестировано на Ubuntu 20.04 - Процессор: 1 core Память: 1 Gb Хранилище: 10 Gb
@@ -13,7 +17,7 @@
 # 2. Загрузить этот файл на сервер в папку root по SFTP (например через программу FileZilla)
 # 3. В консоли под root выполнить:
 # chmod +x ./antizapret-vpn.sh && ./antizapret-vpn.sh
-# 4. Скопировать файл antizapret-client-udp.ovpn с сервера из папки root
+# 4. Скопировать файл antizapret-client-udp.ovpn или antizapret-client-tcp.ovpn с сервера из папки root
 #
 # Обсуждение скрипта
 # https://ntc.party/t/скрипт-для-автоматического-развертывания-antizapret-vpn-container-youtube/8379
@@ -22,20 +26,33 @@
 # https://ntc.party/t/контейнер-vpn-антизапрета-для-установки-на-собственный-сервер/129
 # https://bitbucket.org/anticensority/antizapret-vpn-container/src/master/
 #
+# Команды для настройки антизапрета
+#
 # Изменить файл с личным списком антизапрета include-hosts-custom.txt
 # sudo lxc exec antizapret-vpn -- nano /root/antizapret/config/include-hosts-custom.txt
 # Потом выполните команды для обновления списка антизапрета и очистка кеша DNS
 # sudo lxc exec antizapret-vpn -- /root/antizapret/doall.sh
 # sudo lxc exec antizapret-vpn -- sh -c "echo 'cache.clear()' | socat - /run/knot-resolver/control/1"
 #
-# Изменить конфигурацию OpenVpn сервера с UDP портом
+# Изменить конфигурацию OpenVpn сервера с UDP
 # sudo lxc exec antizapret-vpn -- nano /etc/openvpn/server/antizapret.conf
 # Потом перезапустить OpenVpn сервер
 # sudo lxc exec antizapret-vpn -- service openvpn restart
 #
-# Посмотреть статистику подключений OpenVpn (выход Ctrl+X)
+# Изменить конфигурацию OpenVpn сервера с TCP
+# sudo lxc exec antizapret-vpn -- nano /etc/openvpn/server/antizapret-tcp.conf
+# Потом перезапустить OpenVpn сервер
+# sudo lxc exec antizapret-vpn -- service openvpn-tcp restart
+#
+# Посмотреть статистику подключений OpenVpn c UDP (выход Ctrl+X)
 # sudo lxc exec antizapret-vpn -- nano /etc/openvpn/server/logs/status.log -v
 #
+# Посмотреть статистику подключений OpenVpn c TCP (выход Ctrl+X)
+# sudo lxc exec antizapret-vpn -- nano /etc/openvpn/server/logs/status-tcp.log -v
+#
+# Для отключения подключений к OpenVpn по TCP выполните команды
+# sudo lxc exec antizapret-vpn -- systemctl disable openvpn-server@antizapret-tcp
+# sudo lxc config device remove antizapret-vpn proxy_443_tcp
 # ====================================================================================================
 #
 # Обновляем Ubuntu
@@ -50,14 +67,14 @@ sudo lxd init --auto
 sudo lxc image import https://antizapret.prostovpn.org/container-images/az-vpn --alias antizapret-vpn-img
 sudo lxc init antizapret-vpn-img antizapret-vpn
 #
-# Открываем порт только для UDP, TCP не используем
+# Открываем порты для UDP и TCP
 sudo lxc config device add antizapret-vpn proxy_443_udp proxy listen=udp:[::]:443 connect=udp:127.0.0.1:443
-# sudo lxc config device add antizapret-vpn proxy_1194 proxy listen=tcp:[::]:1194 connect=tcp:127.0.0.1:1194
+sudo lxc config device add antizapret-vpn proxy_443_tcp proxy listen=tcp:[::]:443 connect=tcp:127.0.0.1:443
 #
 # Запускаем контейнер и ждем пока сгенерируется файл подключения ovpn
 sudo lxc start antizapret-vpn && sleep 10
 #
-# Настраиваем OpenVpn, изменяем настройки только для UDP
+# Настраиваем OpenVpn для UDP
 # Удалим keepalive, comp-lzo, увеличим txqueuelen до 1000, добавим fast-io и cipher AES-128-GCM, изменим порт с 1194 на 443
 sudo lxc exec antizapret-vpn -- sed -i '/^[[:space:]]*$/d;/\b\(txqueuelen\|keepalive\)\b/d;s/comp-lzo/port 443\
 txqueuelen 1000\
@@ -67,12 +84,19 @@ cipher AES-128-GCM/g' /root/easy-rsa-ipsec/templates/openvpn-udp-unified.conf
 sudo lxc exec antizapret-vpn -- sed -i '/^[@#]/d;/^[[:space:]]*$/d;s/comp-lzo/port 443\
 cipher AES-128-GCM/g' /root/easy-rsa-ipsec/CLIENT_KEY/antizapret-client-udp.ovpn
 #
-# Отключаем OpenVpn TCP
-sudo lxc exec antizapret-vpn -- systemctl disable openvpn-server@antizapret-tcp
+# Настраиваем OpenVpn для TCP
+# Удалим keepalive, увеличим txqueuelen до 1000, добавим tcp-nodelay и cipher AES-128-GCM, изменим порт с 1194 на 443
+sudo lxc exec antizapret-vpn -- sed -i '/^[[:space:]]*$/d;/\b\(txqueuelen\|keepalive\)\b/d;s/cipher AES-128-CBC/port 443\
+txqueuelen 1000\
+tcp-nodelay/g' /etc/openvpn/server/antizapret-tcp.conf
+sudo lxc exec antizapret-vpn -- sed -i '/^[@#]/d;/^[[:space:]]*$/d;s/cipher AES-128-CBC/port 443\
+cipher AES-128-GCM/g' /root/easy-rsa-ipsec/templates/openvpn-tcp-unified.conf
+sudo lxc exec antizapret-vpn -- sed -i '/^[@#]/d;/^[[:space:]]*$/d;s/cipher AES-128-CBC/port 443\
+cipher AES-128-GCM/g' /root/easy-rsa-ipsec/CLIENT_KEY/antizapret-client-tcp.ovpn
 #
-# Получаем файл подключения только по UDP, TCP не используем
+# Получаем файлы подключения по UDP и TCP
 sudo lxc file pull antizapret-vpn/root/easy-rsa-ipsec/CLIENT_KEY/antizapret-client-udp.ovpn antizapret-client-udp.ovpn
-# sudo lxc file pull antizapret-vpn/root/easy-rsa-ipsec/CLIENT_KEY/antizapret-client-tcp.ovpn antizapret-client-tcp.ovpn
+sudo lxc file pull antizapret-vpn/root/easy-rsa-ipsec/CLIENT_KEY/antizapret-client-tcp.ovpn antizapret-client-tcp.ovpn
 #
 # Ставим патч для устройств Apple https://ntc.party/t/ios-macos-openvpn/4468
 sudo lxc exec antizapret-vpn -- apt update && sudo apt upgrade -y
@@ -102,6 +126,7 @@ gvt3.com
 digitalocean.com
 strava.com
 adguard-vpn.com
+signal.org
 tor.eff.org
 news.google.com
 play.google.com
