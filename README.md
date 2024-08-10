@@ -10,7 +10,7 @@
 ***
 ### Установка:
 1. Устанавливать на чистую Ubuntu 20.04 (или новее если памяти 2 Gb и больше)
-2. Загрузить этот файл на сервер в папку root по SFTP (например через программу FileZilla)
+2. Загрузить [этот файл](https://github.com/GubernievS/AntiZapret-VPN-Container/blob/main/antizapret-vpn.sh) на сервер в папку root по SFTP (например через программу FileZilla)
 3. В консоли под root выполнить:
 ```sh
 chmod +x ./antizapret-vpn.sh && ./antizapret-vpn.sh
