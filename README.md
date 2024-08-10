@@ -22,7 +22,7 @@ chmod +x ./antizapret-vpn.sh && ./antizapret-vpn.sh
 https://ntc.party/t/скрипт-для-автоматического-развертывания-antizapret-vpn-container-youtube/8379
 
 Полезные ссылки\
-https://ntc.party/t/контейнер-vpn-антизапрета-для-установки-на-собственный-сервер/129\
+https://ntc.party/t/контейнер-vpn-антизапрета-для-установки-на-собственный-сервер/129 \
 https://bitbucket.org/anticensority/antizapret-vpn-container/src/master/
 ***
 Команды для настройки антизапрета описаны в самом скрипте в коментариях
