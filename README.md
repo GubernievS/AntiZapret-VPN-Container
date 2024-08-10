@@ -4,7 +4,9 @@
 
 \+ Разблокирован YouTube и часть сайтов блокируемых без решения суда
 
-Для увеличения скорости используется UDP и 443 порт для обхода блокировки по портам
+Для увеличения скорости рекомендуется использовать подключение по UDP
+У кого нет возможности подключаться по UDP - есть возможность подключаться по TCP
+Используется 443 порт вместо 1194 для обхода блокировки по портам
 
 Протестировано на Ubuntu 20.04 - Процессор: 1 core Память: 1 Gb Хранилище: 10 Gb
 ***
@@ -15,7 +17,7 @@
 ```sh
 chmod +x ./antizapret-vpn.sh && ./antizapret-vpn.sh
 ```
-4. Скопировать файл antizapret-client-udp.ovpn с сервера из папки root
+4. Скопировать файл antizapret-client-udp.ovpn или antizapret-client-tcp.ovpn с сервера из папки root
 ***
 Обсуждение скрипта
 https://ntc.party/t/скрипт-для-автоматического-развертывания-antizapret-vpn-container-youtube/8379
@@ -48,5 +50,12 @@ sudo lxc exec antizapret-vpn -- service openvpn restart
 sudo lxc exec antizapret-vpn -- nano /etc/openvpn/server/logs/status.log -v
 ```
 ***
+Для отключения подключений к OpenVpn по TCP выполните команды
+```sh
+sudo lxc exec antizapret-vpn -- systemctl disable openvpn-server@antizapret-tcp
+sudo lxc config device remove antizapret-vpn proxy_443_tcp
+```
+***
+
 Инструкция по настройке на роутерах [Keenetic](./Keenetic.md) и [TP-Link](./TP-Link.md)
 
