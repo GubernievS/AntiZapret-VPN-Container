@@ -18,43 +18,14 @@ chmod +x ./antizapret-vpn.sh && ./antizapret-vpn.sh
 ```
 4. Скопировать файл antizapret-client-udp.ovpn или antizapret-client-tcp.ovpn с сервера из папки root
 ***
-Обсуждение скрипта
+Обсуждение скрипта/
 https://ntc.party/t/скрипт-для-автоматического-развертывания-antizapret-vpn-container-youtube/8379
 
-Полезные ссылки
+Полезные ссылки/
 https://ntc.party/t/контейнер-vpn-антизапрета-для-установки-на-собственный-сервер/129
 https://bitbucket.org/anticensority/antizapret-vpn-container/src/master/
 ***
-Изменить файл с личным списком антизапрета include-hosts-custom.txt
-```sh
-sudo lxc exec antizapret-vpn -- nano /root/antizapret/config/include-hosts-custom.txt
-```
-Потом выполните команды для обновления списка антизапрета и очистка кеша DNS
-```sh
-lxc exec antizapret-vpn -- /root/antizapret/doall.sh
-lxc exec antizapret-vpn -- sh -c "echo 'cache.clear()' | socat - /run/knot-resolver/control/1"
-```
+Команды для настройки антизапрета описаны в самом скрипте в коментариях
 ***
-Изменить конфигурацию OpenVpn сервера с UDP портом
-```sh
-sudo lxc exec antizapret-vpn -- nano /etc/openvpn/server/antizapret.conf
-```
-Потом перезапустить OpenVpn сервер
-```sh
-sudo lxc exec antizapret-vpn -- service openvpn restart
-```
-***
-Посмотреть статистику подключений OpenVpn (выход Ctrl+X)
-```sh
-sudo lxc exec antizapret-vpn -- nano /etc/openvpn/server/logs/status.log -v
-```
-***
-Для отключения подключений к OpenVpn по TCP выполните команды
-```sh
-sudo lxc exec antizapret-vpn -- systemctl disable openvpn-server@antizapret-tcp
-sudo lxc config device remove antizapret-vpn proxy_443_tcp
-```
-***
-
 Инструкция по настройке на роутерах [Keenetic](./Keenetic.md) и [TP-Link](./TP-Link.md)
 
