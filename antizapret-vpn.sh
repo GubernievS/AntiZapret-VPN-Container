@@ -125,7 +125,6 @@ gvt3.com
 digitalocean.com
 strava.com
 adguard-vpn.com
-signal.org
 tor.eff.org
 news.google.com
 play.google.com
