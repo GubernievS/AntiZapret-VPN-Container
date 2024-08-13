@@ -6,7 +6,7 @@ set -e
 # Поддерживается подключение по UDP и TCP 
 # Используется 443 порт вместо 1194 для обхода блокировки по порту
 #
-# Версия 6 от 10.08.2024
+# Версия от 10.08.2024
 # https://github.com/GubernievS/AntiZapret-VPN-Container
 #
 # Протестировано на Ubuntu 20.04 - Процессор: 1 core Память: 1 Gb Хранилище: 10 Gb
@@ -125,6 +125,7 @@ gvt3.com
 digitalocean.com
 strava.com
 adguard-vpn.com
+signal.org
 tor.eff.org
 news.google.com
 play.google.com
