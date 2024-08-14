@@ -112,7 +112,9 @@ sudo lxc exec antizapret-vpn -- rm -rf /root/antizapret
 sudo lxc exec antizapret-vpn -- git clone https://bitbucket.org/anticensority/antizapret-pac-generator-light.git /root/antizapret
 sudo lxc exec antizapret-vpn -- mv -f /root/antizapret-process.sh /root/antizapret/process.sh
 #
-# Добавляем свои адреса в исключения и адреса из https://bitbucket.org/anticensority/russian-unlisted-blocks/src/master/readme.txt
+# Добавляем свои адреса в исключения и адреса из:
+# Внереестровые блокировки  - https://bitbucket.org/anticensority/russian-unlisted-blocks/src/master/readme.txt
+# Ограничивают доступ из РФ - https://github.com/dartraiden/no-russia-hosts/blob/master/hosts.txt
 sudo lxc exec antizapret-vpn -- sh -c "echo 'youtube.com
 googlevideo.com
 ytimg.com
