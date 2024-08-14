@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+export DEBIAN_FRONTEND=noninteractive
 #
 # Скрипт для автоматического развертывания AntiZapret VPN Container
 # + Разблокирован YouTube и часть сайтов блокируемых без решения суда
@@ -151,7 +152,8 @@ linktr.ee
 is.gd
 anicult.org
 12putinu.net
-padlet.com' > /root/antizapret/config/include-hosts-custom.txt"
+padlet.com
+tlsext.com' > /root/antizapret/config/include-hosts-custom.txt"
 #
 # Удаляем исключения из исключений
 sudo lxc exec antizapret-vpn -- sed -i "/\b\(youtube\|youtu\|ytimg\|ggpht\|googleusercontent\|cloudfront\|ftcdn\)\b/d" /root/antizapret/config/exclude-hosts-dist.txt
