@@ -6,7 +6,7 @@ set -e
 # Поддерживается подключение по UDP и TCP 
 # Используется 443 порт вместо 1194 для обхода блокировки по порту
 #
-# Версия от 10.08.2024
+# Версия от 14.08.2024
 # https://github.com/GubernievS/AntiZapret-VPN-Container
 #
 # Протестировано на Ubuntu 20.04 - Процессор: 1 core Память: 1 Gb Хранилище: 10 Gb
@@ -29,9 +29,8 @@ set -e
 #
 # Изменить файл с личным списком антизапрета include-hosts-custom.txt
 # sudo lxc exec antizapret-vpn -- nano /root/antizapret/config/include-hosts-custom.txt
-# Потом выполните команды для обновления списка антизапрета и очистка кеша DNS
+# Потом выполните команду для обновления списка антизапрета
 # sudo lxc exec antizapret-vpn -- /root/antizapret/doall.sh
-# sudo lxc exec antizapret-vpn -- sh -c "echo 'cache.clear()' | socat - /run/knot-resolver/control/1"
 #
 # Изменить конфигурацию OpenVpn сервера с UDP
 # sudo lxc exec antizapret-vpn -- nano /etc/openvpn/server/antizapret.conf
@@ -52,7 +51,7 @@ set -e
 # Для отключения подключений к OpenVpn по TCP выполните команды
 # sudo lxc exec antizapret-vpn -- systemctl disable openvpn-server@antizapret-tcp
 # sudo lxc config device remove antizapret-vpn proxy_443_tcp
-# ====================================================================================================
+#
 #
 # Обновляем Ubuntu
 sudo apt update && sudo apt upgrade -y
@@ -126,6 +125,7 @@ digitalocean.com
 strava.com
 adguard-vpn.com
 signal.org
+intel.com
 tor.eff.org
 news.google.com
 play.google.com
