@@ -1,5 +1,7 @@
 # AntiZapret-VPN-Container
 
+**! Рекомендую ставить [эту версию](https://github.com/GubernievS/AntiZapret-VPN) без контейнерй !**
+
 Скрипт для автоматического развертывания AntiZapret VPN Container\
 \+ Разблокирован YouTube и часть сайтов блокируемых без решения суда
 
