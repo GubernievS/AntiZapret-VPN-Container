@@ -132,7 +132,6 @@ intel.com
 nordvpn.com
 4pda.to
 habr.com
-ntc.party
 tor.eff.org
 news.google.com
 play.google.com
