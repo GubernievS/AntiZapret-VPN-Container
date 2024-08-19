@@ -32,6 +32,7 @@ export DEBIAN_FRONTEND=noninteractive
 # sudo lxc exec antizapret-vpn -- nano /root/antizapret/config/include-hosts-custom.txt
 # Потом выполните команду для обновления списка антизапрета
 # sudo lxc exec antizapret-vpn -- /root/antizapret/doall.sh
+# sudo lxc exec antizapret-vpn -- sh -c "echo 'cache.clear()' | socat - /run/knot-resolver/control/1"
 #
 # Изменить конфигурацию OpenVpn сервера с UDP
 # sudo lxc exec antizapret-vpn -- nano /etc/openvpn/server/antizapret.conf
