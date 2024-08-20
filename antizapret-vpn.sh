@@ -7,7 +7,7 @@ export DEBIAN_FRONTEND=noninteractive
 # Поддерживается подключение по UDP и TCP 
 # Используется 443 порт вместо 1194 для обхода блокировки по порту
 #
-# Версия от 19.08.2024
+# Версия от 20.08.2024
 # https://github.com/GubernievS/AntiZapret-VPN-Container
 #
 # Протестировано на Ubuntu 20.04 - Процессор: 1 core Память: 1 Gb Хранилище: 10 Gb
@@ -112,10 +112,11 @@ sudo lxc exec antizapret-vpn -- mv -f /root/antizapret/process.sh /root/antizapr
 sudo lxc exec antizapret-vpn -- rm -rf /root/antizapret
 sudo lxc exec antizapret-vpn -- git clone https://bitbucket.org/anticensority/antizapret-pac-generator-light.git /root/antizapret
 sudo lxc exec antizapret-vpn -- mv -f /root/antizapret-process.sh /root/antizapret/process.sh
+##################################
+#     Настраиваем исключения     #
+##################################
 #
-# Добавляем свои адреса в исключения и адреса из:
-# Внереестровые блокировки  - https://bitbucket.org/anticensority/russian-unlisted-blocks/src/master/readme.txt
-# Ограничивают доступ из РФ - https://github.com/dartraiden/no-russia-hosts/blob/master/hosts.txt
+# Добавляем свои адреса в исключения
 sudo lxc exec antizapret-vpn -- sh -c "echo 'youtube.com
 googlevideo.com
 ytimg.com
@@ -126,14 +127,33 @@ gvt1.com
 gvt2.com
 gvt3.com
 digitalocean.com
-strava.com
 adguard-vpn.com
-signal.org
-intel.com
-nordvpn.com
+signal.org' > /root/antizapret/config/include-hosts-custom.txt"
+#
+# Ограничивают доступ из РФ - https://github.com/dartraiden/no-russia-hosts/blob/master/hosts.txt
+# (список примерный и скопирован не весь)
+sudo lxc exec antizapret-vpn -- sh -c "echo 'copilot.microsoft.com
 4pda.to
 habr.com
-tor.eff.org
+cisco.com
+dell.com
+dellcdn.com
+fujitsu.com
+deezer.com
+fluke.com
+formula1.com
+intel.com
+nordvpn.com
+qualcomm.com
+strava.com
+openai.com
+intercomcdn.com
+oaistatic.com
+oaiusercontent.com
+chatgpt.com' >> /root/antizapret/config/include-hosts-custom.txt"
+#
+# Внереестровые блокировки  - https://bitbucket.org/anticensority/russian-unlisted-blocks/src/master/readme.txt
+sudo lxc exec antizapret-vpn -- sh -c "echo 'tor.eff.org
 news.google.com
 play.google.com
 twimg.com
@@ -159,7 +179,7 @@ is.gd
 anicult.org
 12putinu.net
 padlet.com
-tlsext.com' > /root/antizapret/config/include-hosts-custom.txt"
+tlsext.com' >> /root/antizapret/config/include-hosts-custom.txt"
 #
 # Удаляем исключения из исключений
 sudo lxc exec antizapret-vpn -- sed -i "/\b\(youtube\|youtu\|ytimg\|ggpht\|googleusercontent\|cloudfront\|ftcdn\)\b/d" /root/antizapret/config/exclude-hosts-dist.txt
