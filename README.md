@@ -1,6 +1,6 @@
 # AntiZapret-VPN-Container
 
-**! Рекомендую ставить [эту версию](https://github.com/GubernievS/AntiZapret-VPN) без контейнерй !**
+**! Для большей скорости рекомендую ставить [версию без контейнерй](https://github.com/GubernievS/AntiZapret-VPN) или [версию в докер контейнере](https://github.com/xtrime-ru/antizapret-vpn-docker) от камрада xtrime-ru!**
 
 Скрипт для автоматического развертывания AntiZapret VPN Container\
 \+ Разблокирован YouTube и часть сайтов блокируемых без решения суда
